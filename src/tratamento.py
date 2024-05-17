@@ -27,7 +27,7 @@ class Review:
 
     def _pre_processamento(self, texto):
         # Aqui eu pego somente o que é letra dentro do texto, tirando pontuações e outros sinais, e coloco tudo em minúsculo
-        letras_min = re.findall(r'\b[A-zÀ-úü]+\b', texto.lower())
+        letras_min = re.findall(r'\b[A-zÀ-úü]+\b', texto.lower()) # Incluir números
 
         # Aqui fica o tratamento com stopwords
         stopwords = nltk.corpus.stopwords.words('portuguese')
@@ -57,7 +57,7 @@ class Review:
             # Exemplo de url do filme: https://www.rottentomatoes.com/m/kingdom_of_the_planet_of_the_apes/reviews
             # Os espaços nos nomes do filmes são preenchidos por _
 
-            filme = filme.lower().replace(" ", "_")
+            filme = filme.strip().lower().replace(" ", "_")
 
             url = f"https://www.rottentomatoes.com/m/{filme}/reviews"
 
