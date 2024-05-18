@@ -23,14 +23,16 @@ class Review:
         reviews_sentimentos = [self._analise_sentimento(review) for review in reviews_processadas]
         media_intensidade = self._media_intensidade(reviews_sentimentos)
 
-        return media_intensidade
+        porcentagem = np.round(media_intensidade * 100, 2)
+
+        return porcentagem  
 
     def _pre_processamento(self, texto):
         # Aqui eu pego somente o que é letra dentro do texto, tirando pontuações e outros sinais, e coloco tudo em minúsculo
-        letras_min = re.findall(r'\b[A-zÀ-úü]+\b', texto.lower()) # Incluir números
+        letras_min = re.findall(r'\b[A-zÀ-úü]+\b', texto.lower()) 
 
         # Aqui fica o tratamento com stopwords
-        stopwords = nltk.corpus.stopwords.words('portuguese')
+        stopwords = nltk.corpus.stopwords.words('english')
         sem_stopwords = [word for word in letras_min if word not in stopwords]
 
         texto_limpo = ' '.join(sem_stopwords)
@@ -45,8 +47,9 @@ class Review:
         return intensidade_sentimento['compound']
 
     def _media_intensidade(self, sentimentos):
+        media_intensidade = (np.mean(sentimentos) + 1)/2
 
-        return np.round(np.mean(sentimentos), 2)
+        return media_intensidade
 
     def _reviews(self, filme):
 
@@ -57,14 +60,15 @@ class Review:
             # Exemplo de url do filme: https://www.rottentomatoes.com/m/kingdom_of_the_planet_of_the_apes/reviews
             # Os espaços nos nomes do filmes são preenchidos por _
 
-            filme = filme.strip().lower().replace(" ", "_")
+            filme = '_'.join(re.findall(r'\b[A-zÀ-úü]+\b', filme.lower()))
+            
 
             url = f"https://www.rottentomatoes.com/m/{filme}/reviews"
 
             driver.get(url)
 
             cont = 0
-            while cont < 3:
+            while cont < 5:
                 button = WebDriverWait(driver, 10).until(
                     EC.presence_of_element_located((By.TAG_NAME, "rt-button"))
                 )
@@ -79,7 +83,8 @@ class Review:
             texts = [t.text for t in driver.find_elements(By.CLASS_NAME, "review-text")]
 
             return texts
-        
+        except:
+            print("ERRO AO ENCONTRAR O FILME!")
         finally:
             if driver:
                 driver.quit()
