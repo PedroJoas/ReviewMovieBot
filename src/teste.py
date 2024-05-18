@@ -6,7 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from time import sleep
 from selenium.webdriver.chrome.options import Options
 import pandas as pd
-
+from bs4 import BeautifulSoup
 
 def retonar_elenco(nome_elenco):
         options = Options()
@@ -33,15 +33,31 @@ def retonar_elenco(nome_elenco):
             button_audience_score.click()
             
             tbody = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, f'[data-qa="celebrity-filmography-movies"]'))
+                EC.presence_of_element_located((By.CSS_SELECTOR, '[data-qa="celebrity-filmography-movies"]'))
             )
 
             table_html = tbody.get_attribute("innerHTML")
-            
-            df = pd.read_html(table_html)
 
-            
-            #print(df.head())
+            soup = BeautifulSoup(table_html, "html.parser")
+            # Extract table rows
+            table_rows = soup.find_all('tr')
+
+            # Create empty list to store table data
+            table_data = []
+
+            # Iterate through rows and extract data from each cell
+            for row in table_rows:
+                row_data = []
+                for cell in row.find_all('td'):
+                    row_data.append(cell.text.strip("\n"))    
+                table_data.append(row_data)
+
+            titulos_top10 = []
+            for row in table_data[1:11]:
+                titulos_top10.append(row[2])
+
+            return titulos_top10
+
 
         finally:
             if driver:

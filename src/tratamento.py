@@ -1,3 +1,4 @@
+from bs4 import BeautifulSoup
 import nltk
 import re
 import numpy as np
@@ -27,11 +28,12 @@ class Review:
 
         return porcentagem  
     
-    def retonar_elenco(self, nome_elenco):
-
+    def retonar_elenco(nome_elenco):
+        options = Options()
+        options.add_argument("--headless")
         driver = None
         try:
-            driver = webdriver.Chrome(options=self.options)
+            driver = webdriver.Chrome(options=options)
 
             # Exemplo de url do filme: https://www.rottentomatoes.com/m/kingdom_of_the_planet_of_the_apes/reviews
             # Os espaços nos nomes do filmes são preenchidos por _
@@ -42,23 +44,39 @@ class Review:
             url = f"https://www.rottentomatoes.com/celebrity/{nome_elenco}"
 
             driver.get(url)
-
-            cont = 0
-            
             buttons = WebDriverWait(driver, 10).until(
-                EC.presence_of_all_elements_located((By.CLASS_NAME, "button--link js-filmography-header"))
+                EC.presence_of_all_elements_located((By.CLASS_NAME, "celebrity-filmography__audience-score-header"))
+            )
+            
+            button_audience_score = buttons[0]
+            
+            button_audience_score.click()
+            
+            tbody = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, '[data-qa="celebrity-filmography-movies"]'))
             )
 
-            button_audience_score = buttons[1]
-            button_audience_score.click()
+            table_html = tbody.get_attribute("innerHTML")
 
-            sleep(1)
+            soup = BeautifulSoup(table_html, "html.parser")
+            # Extract table rows
+            table_rows = soup.find_all('tr')
 
-            texts = [t.text for t in driver.find_elements(By.CLASS_NAME, "review-text")]
+            # Create empty list to store table data
+            table_data = []
 
-            return texts
-        except:
-            print("ERRO AO ENCONTRAR O FILME!")
+            # Iterate through rows and extract data from each cell
+            for row in table_rows:
+                row_data = []
+                for cell in row.find_all('td'):
+                    row_data.append(cell.text.strip("\n"))    
+                table_data.append(row_data)
+
+            titulos_top10 = [row[2] for row in table_data[1:11]]
+
+            return titulos_top10
+
+
         finally:
             if driver:
                 driver.quit()

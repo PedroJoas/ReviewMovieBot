@@ -19,7 +19,7 @@ def avaliacao_filme(mensagem):
         bot.send_message(mensagem.chat.id, f"{nome_filme} tem média de sentimentos de: {review_filme}")
 
     else:
-        
+
         bot.send_message(mensagem.chat.id, "Digite o nome do filme!")
 
     
@@ -32,7 +32,8 @@ def elenco(mensagem):
 @bot.message_handler(commands=['direcao'])
 def direcao(mensagem):
     nome_direcao = re.search(r"/direcao (.+)", mensagem.text).group(1)
-    pass
+    filmes = review.retonar_elenco(nome_direcao) # Fazer tratamento para printar cada filme
+    bot.send_message(mensagem.chat.id, )
 
 @bot.message_handler(commands=['help'])
 def help(mensagem):
