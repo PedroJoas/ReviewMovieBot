@@ -26,6 +26,42 @@ class Review:
         porcentagem = np.round(media_intensidade * 100, 2)
 
         return porcentagem  
+    
+    def retonar_elenco(self, nome_elenco):
+
+        driver = None
+        try:
+            driver = webdriver.Chrome(options=self.options)
+
+            # Exemplo de url do filme: https://www.rottentomatoes.com/m/kingdom_of_the_planet_of_the_apes/reviews
+            # Os espaços nos nomes do filmes são preenchidos por _
+
+            nome_elenco = '_'.join(re.findall(r'\b[A-zÀ-úü]+\b', nome_elenco.lower()))
+            
+
+            url = f"https://www.rottentomatoes.com/celebrity/{nome_elenco}"
+
+            driver.get(url)
+
+            cont = 0
+            
+            buttons = WebDriverWait(driver, 10).until(
+                EC.presence_of_all_elements_located((By.CLASS_NAME, "button--link js-filmography-header"))
+            )
+
+            button_audience_score = buttons[1]
+            button_audience_score.click()
+
+            sleep(1)
+
+            texts = [t.text for t in driver.find_elements(By.CLASS_NAME, "review-text")]
+
+            return texts
+        except:
+            print("ERRO AO ENCONTRAR O FILME!")
+        finally:
+            if driver:
+                driver.quit()
 
     def _pre_processamento(self, texto):
         # Aqui eu pego somente o que é letra dentro do texto, tirando pontuações e outros sinais, e coloco tudo em minúsculo
