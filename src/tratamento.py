@@ -28,17 +28,16 @@ class Review:
 
         return porcentagem  
     
-    def retonar_elenco(nome_elenco):
-        options = Options()
-        options.add_argument("--headless")
+    def retonar_elenco(self, nome_elenco):
+
         driver = None
         try:
-            driver = webdriver.Chrome(options=options)
+            driver = webdriver.Chrome(options=self.options)
 
             # Exemplo de url do filme: https://www.rottentomatoes.com/m/kingdom_of_the_planet_of_the_apes/reviews
             # Os espaços nos nomes do filmes são preenchidos por _
 
-            nome_elenco = '_'.join(re.findall(r'\b[A-zÀ-úü]+\b', nome_elenco.lower()))
+            nome_elenco = '_'.join(re.findall(r'\b[A-zÀ-úü0-9]+\b', nome_elenco.lower()))
             
 
             url = f"https://www.rottentomatoes.com/celebrity/{nome_elenco}"
@@ -74,7 +73,34 @@ class Review:
 
             titulos_top10 = [row[2] for row in table_data[1:11]]
 
-            return titulos_top10
+            return '\n'.join(titulos_top10)
+
+
+        finally:
+            if driver:
+                driver.quit()
+
+    def retonar_sinopse(self,nome_filme): # Conseguir remover as duas linhas finais
+       
+        driver = None
+        try:
+            driver = webdriver.Chrome(options=self.options)
+
+            # Exemplo de url do filme: https://www.rottentomatoes.com/m/kingdom_of_the_planet_of_the_apes/reviews
+            # Os espaços nos nomes do filmes são preenchidos por _
+
+            nome_filme = '_'.join(re.findall(r'\b[A-zÀ-úü0-9]+\b', nome_filme.lower()))
+            
+
+            url = f"https://www.rottentomatoes.com/m/{nome_filme}"
+
+            driver.get(url)
+            
+            sinopse = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.XPATH, '//drawer-more[@slot="description"]'))
+            )
+
+            return sinopse.text
 
 
         finally:
@@ -83,7 +109,7 @@ class Review:
 
     def _pre_processamento(self, texto):
         # Aqui eu pego somente o que é letra dentro do texto, tirando pontuações e outros sinais, e coloco tudo em minúsculo
-        letras_min = re.findall(r'\b[A-zÀ-úü]+\b', texto.lower()) 
+        letras_min = re.findall(r'\b[A-zÀ-úü0-9]+\b', texto.lower()) 
 
         # Aqui fica o tratamento com stopwords
         stopwords = nltk.corpus.stopwords.words('english')
@@ -114,7 +140,7 @@ class Review:
             # Exemplo de url do filme: https://www.rottentomatoes.com/m/kingdom_of_the_planet_of_the_apes/reviews
             # Os espaços nos nomes do filmes são preenchidos por _
 
-            filme = '_'.join(re.findall(r'\b[A-zÀ-úü]+\b', filme.lower()))
+            filme = '_'.join(re.findall(r'\b[A-zÀ-úü0-9]+\b', filme.lower()))
             
 
             url = f"https://www.rottentomatoes.com/m/{filme}/reviews"

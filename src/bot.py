@@ -15,7 +15,10 @@ def avaliacao_filme(mensagem):
     if(nome_filme != ''):
 
         bot.send_message(mensagem.chat.id, "Certo! Espere alguns segundos para o resultado!")
+        sinopse = review.retonar_sinopse(nome_filme)
         review_filme = review.retorna_intensidade(nome_filme)
+
+        bot.send_message(mensagem.chat.id, f"Sinopse do filme {nome_filme}: {sinopse}")
         bot.send_message(mensagem.chat.id, f"{nome_filme} tem média de sentimentos de: {review_filme}")
 
     else:
@@ -27,19 +30,19 @@ def avaliacao_filme(mensagem):
 @bot.message_handler(commands=['elenco'])
 def elenco(mensagem):
     nome_elenco = re.search(r"/elenco (.+)", mensagem.text).group(1)
-    pass
+    if(nome_elenco != ''):
 
-@bot.message_handler(commands=['direcao'])
-def direcao(mensagem):
-    nome_direcao = re.search(r"/direcao (.+)", mensagem.text).group(1)
-    filmes = review.retonar_elenco(nome_direcao) # Fazer tratamento para printar cada filme
-    bot.send_message(mensagem.chat.id, )
+        bot.send_message(mensagem.chat.id, "Certo! Espere alguns segundos para o resultado!")
+
+        filmes = review.retonar_elenco(nome_elenco)
+        bot.send_message(mensagem.chat.id, filmes)
+    else:
+        bot.send_message(mensagem.chat.id, "Digite o nome da celebridade!")
 
 @bot.message_handler(commands=['help'])
 def help(mensagem):
     info_help = '''/filme: mostra as informações base do filme. Exemplo de uso: /filme pixels
-    /elenco: mostra o top 10 filmes mais bem avaliados com o ator/atriz pedido. Exemplo de uso: /elenco angelina jolie
-    /direcao: mostra o top 10 filmes mais bem avaliados com o diretor(a) pedido. Exemplo de uso: /elenco george lucas
+    /elenco: mostra o top 10 filmes mais bem avaliados com o ator/atriz ou diretor(a) pedido. Exemplo de uso: /elenco angelina jolie
     '''
     bot.send_message(mensagem.chat.id, info_help)
 
