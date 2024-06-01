@@ -100,7 +100,9 @@ class Review:
                 EC.presence_of_element_located((By.XPATH, '//drawer-more[@slot="description"]'))
             )
 
-            return sinopse.text
+            sinopse = sinopse.text.replace("Content collapsed.\nRead More", "")
+
+            return sinopse
 
 
         finally:
@@ -109,7 +111,7 @@ class Review:
 
     def _pre_processamento(self, texto):
         # Aqui eu pego somente o que é letra dentro do texto, tirando pontuações e outros sinais, e coloco tudo em minúsculo
-        letras_min = re.findall(r'\b[A-zÀ-úü0-9]+\b', texto.lower()) 
+        letras_min = re.findall(r'\b[A-zÀ-úü]+\b', texto.lower()) 
 
         # Aqui fica o tratamento com stopwords
         stopwords = nltk.corpus.stopwords.words('english')
@@ -168,3 +170,7 @@ class Review:
         finally:
             if driver:
                 driver.quit()
+    
+    def _retorna_filme_ingles(self, nome_file_pt):
+        pass
+

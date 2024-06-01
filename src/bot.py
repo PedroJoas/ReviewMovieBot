@@ -9,6 +9,7 @@ from tratamento import Review
 bot = telebot.TeleBot(CHAVE_API)
 review = Review()
 
+
 @bot.message_handler(commands=['filme'])
 def avaliacao_filme(mensagem):
     nome_filme = re.search(r"/filme (.+)", mensagem.text).group(1)
@@ -18,8 +19,8 @@ def avaliacao_filme(mensagem):
         sinopse = review.retonar_sinopse(nome_filme)
         review_filme = review.retorna_intensidade(nome_filme)
 
-        bot.send_message(mensagem.chat.id, f"Sinopse do filme {nome_filme}: {sinopse}")
-        bot.send_message(mensagem.chat.id, f"{nome_filme} tem média de sentimentos de: {review_filme}")
+        bot.send_message(mensagem.chat.id, f"Sinopse do filme {nome_filme}:\n\n{sinopse}")
+        bot.send_message(mensagem.chat.id, f"{review_filme}% das reviews são positivas sobre o filme {nome_filme}")
 
     else:
 
@@ -39,22 +40,26 @@ def elenco(mensagem):
     else:
         bot.send_message(mensagem.chat.id, "Digite o nome da celebridade!")
 
+
 @bot.message_handler(commands=['help'])
 def help(mensagem):
-    info_help = '''/filme: mostra as informações base do filme. Exemplo de uso: /filme pixels
-    /elenco: mostra o top 10 filmes mais bem avaliados com o ator/atriz ou diretor(a) pedido. Exemplo de uso: /elenco angelina jolie
-    '''
-    bot.send_message(mensagem.chat.id, info_help)
+    
+    bot.send_message(mensagem.chat.id, 
+    '/filme: mostra as informações base do filme.\n' + 
+    'Exemplo de uso: /filme pixels\n'+
+    '/elenco: mostra o top 10 filmes mais bem avaliados com o ator/atriz ou diretor(a) pedido.'+
+    'Exemplo de uso: /elenco angelina jolie')
+
+
 
 def verificar(mensagem):
     return True
 
 @bot.message_handler(func=verificar)
 def resposta_padrao(mensagem):
-    mensagem_padrao = '''
-        Olá, seja bem vindo(a)!\n Me chamo Bex e estou aqui para falar de filmes!
-o comando /help mostra os comandos utilizados para as informações.
-    '''
-    bot.reply_to(mensagem, mensagem_padrao)
+
+
+    bot.reply_to(mensagem, 'Olá, seja bem vindo(a)!\n Me chamo Bex e estou aqui para falar de filmes!\n'+
+                 'O comando /help mostra os comandos utilizados para as informações.')
 
 bot.polling()
